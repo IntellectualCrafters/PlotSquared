@@ -44,6 +44,9 @@ dependencies {
     api(libs.arkitektonika)
     api(libs.paster)
     api(libs.informativeAnnotations)
+
+    // Database
+    implementation(libs.hikaricp)
 }
 
 tasks.processResources {

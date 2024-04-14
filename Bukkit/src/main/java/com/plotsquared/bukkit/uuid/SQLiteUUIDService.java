@@ -45,11 +45,6 @@ public class SQLiteUUIDService implements UUIDService, Consumer<List<UUIDMapping
     public SQLiteUUIDService(final String fileName) {
         this.sqlite =
                 new SQLite(FileUtils.getFile(PlotSquared.platform().getDirectory(), fileName));
-        try {
-            this.sqlite.openConnection();
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
 
         try (PreparedStatement stmt = getConnection().prepareStatement(
                 "CREATE TABLE IF NOT EXISTS `usercache` (uuid VARCHAR(32) NOT NULL, username VARCHAR(32) NOT NULL, PRIMARY KEY (uuid))")) {

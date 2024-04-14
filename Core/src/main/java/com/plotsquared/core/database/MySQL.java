@@ -19,10 +19,10 @@
 package com.plotsquared.core.database;
 
 import com.plotsquared.core.configuration.Storage;
-import com.plotsquared.core.util.StringMan;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -35,12 +35,7 @@ import java.sql.Statement;
  */
 public class MySQL extends Database {
 
-    private final String user;
-    private final String database;
-    private final String password;
-    private final String port;
-    private final String hostname;
-    private Connection connection;
+    private final HikariDataSource hikariDataSource;
 
     /**
      * Creates a new MySQL instance.
@@ -52,66 +47,52 @@ public class MySQL extends Database {
      * @param password Password
      */
     public MySQL(String hostname, String port, String database, String username, String password) {
-        this.hostname = hostname;
-        this.port = port;
-        this.database = database;
-        this.user = username;
-        this.password = password;
-        this.connection = null;
-    }
-
-    @Override
-    public Connection forceConnection() throws SQLException {
-        this.connection = DriverManager.getConnection(
-                "jdbc:mysql://" + this.hostname + ':' + this.port + '/' + this.database + "?"
-                        + StringMan.join(Storage.MySQL.PROPERTIES, "&"), this.user, this.password);
-        return this.connection;
-    }
-
-    @Override
-    public Connection openConnection() throws SQLException {
-        if (checkConnection()) {
-            return this.connection;
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://" + hostname + ':' + port + '/' + database);
+        config.setUsername(username);
+        config.setPassword(password);
+        for (final String property : Storage.MySQL.PROPERTIES) {
+            if (property.contains("=")) {
+                String[] splittedProperty = property.split("=");
+                if (splittedProperty.length != 2) {
+                    continue;
+                }
+                String key = splittedProperty[0];
+                String value = splittedProperty[1];
+                config.addDataSourceProperty(key,value);
+            }
         }
-        return forceConnection();
-    }
-
-    @Override
-    public boolean checkConnection() throws SQLException {
-        return (this.connection != null) && !this.connection.isClosed();
+        this.hikariDataSource = new HikariDataSource(config);
     }
 
     @Override
     public Connection getConnection() {
-        return this.connection;
+        try {
+            return this.hikariDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean closeConnection() throws SQLException {
-        if (this.connection == null) {
+        if (this.hikariDataSource == null) {
             return false;
         }
-        this.connection.close();
-        this.connection = null;
+        this.hikariDataSource.close();
         return true;
     }
 
     @Override
     public ResultSet querySQL(String query) throws SQLException {
-        if (checkConnection()) {
-            openConnection();
-        }
-        try (Statement statement = this.connection.createStatement()) {
+        try (Statement statement = this.getConnection().createStatement()) {
             return statement.executeQuery(query);
         }
     }
 
     @Override
     public int updateSQL(String query) throws SQLException {
-        if (checkConnection()) {
-            openConnection();
-        }
-        try (Statement statement = this.connection.createStatement()) {
+        try (Statement statement = this.getConnection().createStatement()) {
             return statement.executeUpdate(query);
         }
     }

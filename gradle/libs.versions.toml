@@ -31,6 +31,7 @@ paperlib = "1.0.8"
 informative-annotations = "1.4"
 vault = "1.7.1"
 serverlib = "2.3.4"
+hikaricp = "5.0.1"
 
 # Gradle plugins
 shadow = "8.1.1"
@@ -77,6 +78,7 @@ informativeAnnotations = { group = "com.intellectualsites.informative-annotation
 paperlib = { group = "io.papermc", name = "paperlib", version.ref = "paperlib" }
 vault = { group = "com.github.MilkBowl", name = "VaultAPI", version.ref = "vault" }
 serverlib = { group = "dev.notmyfault.serverlib", name = "ServerLib", version.ref = "serverlib" }
+hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp"}
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }

@@ -19,13 +19,14 @@
 package com.plotsquared.core.database;
 
 import com.plotsquared.core.PlotSquared;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -36,9 +37,7 @@ import java.sql.Statement;
 public class SQLite extends Database {
 
     private static final Logger LOGGER = LogManager.getLogger("PlotSquared/" + SQLite.class.getSimpleName());
-
-    private final String dbLocation;
-    private Connection connection;
+    private final HikariDataSource hikariDataSource;
 
     /**
      * Creates a new SQLite instance
@@ -46,18 +45,10 @@ public class SQLite extends Database {
      * @param dbLocation Location of the Database (Must end in .db)
      */
     public SQLite(File dbLocation) {
-        this.dbLocation = dbLocation.getAbsolutePath();
-    }
-
-    @Override
-    public Connection openConnection() throws SQLException, ClassNotFoundException {
-        if (checkConnection()) {
-            return this.connection;
-        }
         if (!PlotSquared.platform().getDirectory().exists()) {
             PlotSquared.platform().getDirectory().mkdirs();
         }
-        File file = new File(this.dbLocation);
+        File file = dbLocation;
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -65,56 +56,47 @@ public class SQLite extends Database {
                 LOGGER.error("Unable to create database");
             }
         }
-        Class.forName("org.sqlite.JDBC");
-        this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.dbLocation);
-        return this.connection;
-    }
-
-    @Override
-    public boolean checkConnection() throws SQLException {
-        return (this.connection != null) && !this.connection.isClosed();
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:sqlite:" + dbLocation);
+        config.setDriverClassName("org.sqlite.JDBC");
+        this.hikariDataSource = new HikariDataSource(config);
     }
 
     @Override
     public Connection getConnection() {
-        return this.connection;
+        try {
+            return this.hikariDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean closeConnection() throws SQLException {
-        if (this.connection == null) {
+        if (this.hikariDataSource == null) {
             return false;
         }
-        this.connection.close();
-        this.connection = null;
+        this.hikariDataSource.close();
         return true;
     }
 
     @Override
-    public ResultSet querySQL(String query) throws SQLException, ClassNotFoundException {
-        if (checkConnection()) {
-            openConnection();
-        }
-        try (Statement statement = this.connection.createStatement()) {
+    public ResultSet querySQL(String query) throws SQLException {
+        try (Statement statement = this.getConnection().createStatement()) {
             return statement.executeQuery(query);
         }
     }
 
     @Override
-    public int updateSQL(String query) throws SQLException, ClassNotFoundException {
-        if (checkConnection()) {
-            openConnection();
-        }
-        try (Statement statement = this.connection.createStatement()) {
+    public int updateSQL(String query) throws SQLException {
+        try (Statement statement = this.getConnection().createStatement()) {
             return statement.executeUpdate(query);
         }
-    }
-
-    @Override
-    public Connection forceConnection() throws SQLException, ClassNotFoundException {
-        Class.forName("org.sqlite.JDBC");
-        this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.dbLocation);
-        return this.connection;
     }
 
 }
