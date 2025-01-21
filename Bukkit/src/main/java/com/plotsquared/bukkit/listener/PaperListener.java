@@ -228,7 +228,7 @@ public class PaperListener implements Listener {
         if (plot == null) {
             EntityType type = event.getType();
             // PreCreatureSpawnEvent **should** not be called for DROPPED_ITEM, just for the sake of consistency
-            if (type == EntityType.DROPPED_ITEM) {
+            if (type == EntityType.ITEM) {
                 if (Settings.Enabled_Components.KILL_ROAD_ITEMS) {
                     event.setCancelled(true);
                 }
@@ -354,7 +354,7 @@ public class PaperListener implements Listener {
                 event.setCancelled(true);
             }
         } else if (!plot.isAdded(pp.getUUID())) {
-            if (entity.getType().equals(EntityType.FISHING_HOOK)) {
+            if (entity.getType().equals(EntityType.FISHING_BOBBER)) {
                 if (plot.getFlag(FishingFlag.class)) {
                     return;
                 }

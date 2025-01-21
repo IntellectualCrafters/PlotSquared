@@ -1,6 +1,6 @@
 [versions]
 # Platform expectations
-paper = "1.20.4-R0.1-SNAPSHOT"
+paper = "1.21.4-R0.1-SNAPSHOT"
 guice = "7.0.0"
 spotbugs = "4.9.0"
 checkerqual = "3.48.4"
@@ -16,7 +16,7 @@ worldedit = "7.2.20"
 fawe = "2.12.3"
 placeholderapi = "2.11.6"
 luckperms = "5.4"
-essentialsx = "2.20.1"
+essentialsx = "2.21.0-SNAPSHOT"
 mvdwapi = "3.1.1"
 
 # Third party

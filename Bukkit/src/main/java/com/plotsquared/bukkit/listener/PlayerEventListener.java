@@ -376,7 +376,7 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler
     public void onVehicleEntityCollision(VehicleEntityCollisionEvent e) {
-        if (e.getVehicle().getType() == EntityType.BOAT) {
+        if (e.getVehicle().getType() == EntityType.OAK_BOAT) {
             Location location = BukkitUtil.adapt(e.getEntity().getLocation());
             if (location.isPlotArea()) {
                 if (e.getEntity() instanceof Player) {

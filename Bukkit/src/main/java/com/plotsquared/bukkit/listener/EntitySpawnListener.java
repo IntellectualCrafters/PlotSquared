@@ -132,7 +132,7 @@ public class EntitySpawnListener implements Listener {
         Plot plot = location.getOwnedPlotAbs();
         EntityType type = entity.getType();
         if (plot == null) {
-            if (type == EntityType.DROPPED_ITEM) {
+            if (type == EntityType.ITEM) {
                 if (Settings.Enabled_Components.KILL_ROAD_ITEMS) {
                     event.setCancelled(true);
                 }
@@ -154,7 +154,7 @@ public class EntitySpawnListener implements Listener {
         if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot)) {
             event.setCancelled(true);
         }
-        if (type == EntityType.ENDER_CRYSTAL || type == EntityType.ARMOR_STAND) {
+        if (type == EntityType.END_CRYSTAL || type == EntityType.ARMOR_STAND) {
             if (BukkitEntityUtil.checkEntity(entity, plot)) {
                 event.setCancelled(true);
             }

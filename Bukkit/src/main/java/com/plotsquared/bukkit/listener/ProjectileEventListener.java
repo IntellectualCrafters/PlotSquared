@@ -134,7 +134,7 @@ public class ProjectileEventListener implements Listener {
                 event.setCancelled(true);
             }
         } else if (!plot.isAdded(pp.getUUID())) {
-            if (entity.getType().equals(EntityType.FISHING_HOOK)) {
+            if (entity.getType().equals(EntityType.FISHING_BOBBER)) {
                 if (plot.getFlag(FishingFlag.class)) {
                     return;
                 }
@@ -194,7 +194,7 @@ public class ProjectileEventListener implements Listener {
                 return;
             }
             if (plot.isAdded(pp.getUUID()) || pp.hasPermission(Permission.PERMISSION_ADMIN_PROJECTILE_OTHER) || plot.getFlag(
-                    ProjectilesFlag.class) || (entity.getType().equals(EntityType.FISHING_HOOK) && plot.getFlag(
+                    ProjectilesFlag.class) || (entity.getType().equals(EntityType.FISHING_BOBBER) && plot.getFlag(
                     FishingFlag.class))) {
                 return;
             }

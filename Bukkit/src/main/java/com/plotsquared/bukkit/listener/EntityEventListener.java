@@ -314,7 +314,7 @@ public class EntityEventListener implements Listener {
                 if (this.lastRadius != 0) {
                     List<Entity> nearby = event.getEntity().getNearbyEntities(this.lastRadius, this.lastRadius, this.lastRadius);
                     for (Entity near : nearby) {
-                        if (near instanceof TNTPrimed || near.getType().equals(EntityType.MINECART_TNT)) {
+                        if (near instanceof TNTPrimed || near.getType().equals(EntityType.TNT_MINECART)) {
                             if (!near.hasMetadata("plot")) {
                                 near.setMetadata("plot", new FixedMetadataValue((Plugin) PlotSquared.platform(), plot));
                             }
@@ -338,7 +338,7 @@ public class EntityEventListener implements Listener {
         event.setCancelled(true);
         //Spawn Explosion Particles when enabled in settings
         if (Settings.General.ALWAYS_SHOW_EXPLOSIONS) {
-            event.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_HUGE, event.getLocation(), 0);
+            event.getLocation().getWorld().spawnParticle(Particle.EXPLOSION, event.getLocation(), 0);
         }
     }
 

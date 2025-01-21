@@ -342,7 +342,7 @@ public class BukkitEntityUtil {
         //disable the firework damage. too much of a headache to support at the moment.
         if (vplot != null) {
             if (EntityDamageEvent.DamageCause.ENTITY_EXPLOSION == cause
-                    && damager.getType() == EntityType.FIREWORK) {
+                    && damager.getType() == EntityType.FIREWORK_ROCKET) {
                 return false;
             }
         }
