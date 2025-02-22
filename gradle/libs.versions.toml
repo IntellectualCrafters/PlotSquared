@@ -1,6 +1,6 @@
 [versions]
 # Platform expectations
-paper = "1.20.4-R0.1-SNAPSHOT"
+paper = "1.21.1-R0.1-SNAPSHOT"
 guice = "7.0.0"
 spotbugs = "4.9.1"
 checkerqual = "3.49.0"

@@ -631,6 +631,7 @@
   "flags.flag_description_projectiles": "<gray>Prevents guests from shooting projectiles on the plot when set to false.</gray>",
   "flags.flag_description_weaving_death_place": "<gray>Set to `false` to prevent spawning of cobwebs by the Weaving status effect on the death of an entity.</gray>",
   "flags.flag_description_beacon_effect": "<gray>Enables beacon effects on the plot.</gray>",
+  "flags.flag_description_windcharge": "<gray>Enables Wind-Charge interactions on the plot.</gray>",
   "flags.flag_error_boolean": "Flag value must be a boolean (true | false).",
   "flags.flag_error_enum": "Must be one of: <list>",
   "flags.flag_error_integer": "Flag value must be a whole positive number.",

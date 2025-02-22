@@ -93,6 +93,7 @@ import com.plotsquared.core.plot.flag.implementations.PreventCreativeCopyFlag;
 import com.plotsquared.core.plot.flag.implementations.PriceFlag;
 import com.plotsquared.core.plot.flag.implementations.ProjectileChangeBlockFlag;
 import com.plotsquared.core.plot.flag.implementations.ProjectilesFlag;
+import com.plotsquared.core.plot.flag.implementations.WindChargeFlag;
 import com.plotsquared.core.plot.flag.implementations.WeavingDeathPlace;
 import com.plotsquared.core.plot.flag.implementations.PveFlag;
 import com.plotsquared.core.plot.flag.implementations.PvpFlag;
@@ -210,6 +211,7 @@ public final class GlobalFlagContainer extends FlagContainer {
         this.addFlag(VillagerInteractFlag.VILLAGER_INTERACT_FALSE);
         this.addFlag(VineGrowFlag.VINE_GROW_TRUE);
         this.addFlag(ProjectilesFlag.PROJECTILES_FALSE);
+        this.addFlag(WindChargeFlag.WIND_CHARGE_FALSE);
         this.addFlag(WeavingDeathPlace.WEAVING_DEATH_PLACE_FALSE);
 
         // Double flags
