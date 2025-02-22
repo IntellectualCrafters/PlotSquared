@@ -23,17 +23,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.UUID;
 
-class OwnersIncludeFilter implements PlotFilter {
-
-    private final UUID owner;
-
-    OwnersIncludeFilter(final @NonNull UUID owner) {
-        this.owner = owner;
-    }
+record OwnersIncludeFilter(UUID owner) implements PlotFilter {
 
     @Override
     public boolean accepts(final @NonNull Plot plot) {
-        return plot.isBasePlot() && plot.getOwners().size() > 0 && plot.getOwners().contains(owner);
+        return plot.isBasePlot() && plot.isOwner(owner);
     }
 
 }
