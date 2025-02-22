@@ -67,9 +67,10 @@ public class Visit extends Command {
 
     private void visit(
             final @NonNull PlotPlayer<?> player, final @NonNull PlotQuery query, final PlotArea sortByArea,
-            final RunnableVal3<Command, Runnable, Runnable> confirm, final RunnableVal2<Command, CommandResult> whenDone, int page
+            final RunnableVal3<Command, Runnable, Runnable> confirm, final RunnableVal2<Command, CommandResult> whenDone,
+            int page, final boolean isQueryingBasePlot
     ) {
-        if (query.hasMinimumMatches(2)) {
+        if (!isQueryingBasePlot && query.hasMinimumMatches(2)) {
             query.whereBasePlot();
         }
 
@@ -233,7 +234,8 @@ public class Visit extends Command {
                                     finalSortByArea,
                                     confirm,
                                     whenDone,
-                                    finalPage1
+                                    finalPage1,
+                                    true
                             );
                         }
                     });
@@ -268,7 +270,8 @@ public class Visit extends Command {
                                         player.getApplicablePlotArea(),
                                         confirm,
                                         whenDone,
-                                        1
+                                        1,
+                                        false
                                 );
                             } else {
                                 player.sendMessage(
@@ -286,13 +289,13 @@ public class Visit extends Command {
                             player.sendMessage(TranslatableCaption.of("errors.player_no_plots"));
                             return;
                         }
-                        this.visit(player, query.whereBasePlot(), null, confirm, whenDone, finalPage);
+                        this.visit(player, query.whereBasePlot(), null, confirm, whenDone, finalPage, true);
                     });
                 } else {
                     // Try to parse a plot
                     final Plot plot = Plot.getPlotFromString(player, finalArgs[0], true);
                     if (plot != null) {
-                        this.visit(player, PlotQuery.newQuery().withPlot(plot), null, confirm, whenDone, 1);
+                        this.visit(player, PlotQuery.newQuery().withPlot(plot), null, confirm, whenDone, 1, false);
                     }
                 }
                 break;
