@@ -35,16 +35,19 @@ interface PlotProvider {
     Stream<Plot> streamPlots();
 
     default Stream<Plot> streamPlotsInPlotAreas(PlotArea[] areas) {
+        if (areas == null || areas.length == 0) {
+            return Stream.of();
+        }
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<>() {
             private int areaIndex = -1;
             private Iterator<Plot> currentAreaPlots;
             @Override
             public boolean hasNext() {
-                if (currentAreaPlots == null) {
-                    return areas.length > 0;
-                }
-                if (!currentAreaPlots.hasNext()) {
-                    return ++areaIndex < areas.length - 1;
+                if (currentAreaPlots == null || !currentAreaPlots.hasNext()) {
+                    if (areaIndex >= areas.length) {
+                        return false;
+                    }
+                    currentAreaPlots = areas[++areaIndex].getPlots().iterator();
                 }
                 return true;
             }
