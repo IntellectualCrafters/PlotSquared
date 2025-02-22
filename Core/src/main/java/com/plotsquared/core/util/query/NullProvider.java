@@ -22,12 +22,18 @@ import com.plotsquared.core.plot.Plot;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 class NullProvider implements PlotProvider {
 
     @Override
     public Collection<Plot> getPlots() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<Plot> streamPlots() {
+        return Stream.empty();
     }
 
 }

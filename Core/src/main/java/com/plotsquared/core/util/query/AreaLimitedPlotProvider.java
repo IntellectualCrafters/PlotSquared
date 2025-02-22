@@ -24,6 +24,7 @@ import com.plotsquared.core.plot.PlotArea;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 class AreaLimitedPlotProvider implements PlotProvider {
 
@@ -40,6 +41,11 @@ class AreaLimitedPlotProvider implements PlotProvider {
             plots.addAll(area.getPlots());
         }
         return plots;
+    }
+
+    @Override
+    public Stream<Plot> streamPlots() {
+        return streamPlotsInPlotAreas(this.areas.toArray(PlotArea[]::new));
     }
 
 }

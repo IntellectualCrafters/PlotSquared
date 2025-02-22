@@ -229,6 +229,7 @@ public final class PlotQuery implements Iterable<Plot> {
     public @NonNull PlotQuery hasOwner() {
         return this.addFilter(new HasOwnerFilter());
     }
+
     /**
      * Query for plots with a specific alias
      *
@@ -307,7 +308,7 @@ public final class PlotQuery implements Iterable<Plot> {
      * @return Matching plots
      */
     public @NonNull Stream<Plot> asStream() {
-        return this.asList().stream();
+        return this.asList().stream(); // TODO: use stream functionality from PlotProvider?
     }
 
     /**
@@ -427,22 +428,29 @@ public final class PlotQuery implements Iterable<Plot> {
      * @return {@code true} if any provided plot matches the filters.
      */
     public boolean anyMatch() {
-        if (this.filters.isEmpty()) {
-            return !this.plotProvider.getPlots().isEmpty();
-        } else {
-            final Collection<Plot> plots = this.plotProvider.getPlots();
-            outer:
-            for (final Plot plot : plots) {
-                // a plot must pass all filters to match the criteria
-                for (final PlotFilter filter : this.filters) {
-                    if (!filter.accepts(plot)) {
-                        continue outer;
-                    }
+        return hasMinimumMatches(1);
+    }
+
+    /**
+     * Get whether this query matches at least {@code minimum} plots.
+     * <br />
+     * Should be prioritized over {@link #count()}, if possible.
+     * This method only queries as many plots and areas as required without applying sorting. (short-circuiting on the stream)
+     *
+     * @param minimum the minimum amount of matches plots expected (inclusive)
+     * @return {@code true} if this query's result contains at least {@code minimum} plots (after optional filters).
+     *
+     * @since TODO
+     */
+    public boolean hasMinimumMatches(int minimum) {
+        return this.plotProvider.streamPlots().filter(plot -> {
+            for (final PlotFilter filter : filters) {
+                if (!filter.accepts(plot)) {
+                    return false;
                 }
-                return true; // a plot passed all filters, so we have a match
             }
-            return false;
-        }
+            return true;
+        }).limit(minimum).count() == minimum;
     }
 
     @NonNull

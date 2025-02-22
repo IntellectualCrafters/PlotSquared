@@ -26,6 +26,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 class GlobalPlotProvider implements PlotProvider {
 
@@ -42,6 +43,11 @@ class GlobalPlotProvider implements PlotProvider {
             plots.addAll(plotArea.getPlots());
         }
         return plots;
+    }
+
+    @Override
+    public Stream<Plot> streamPlots() {
+        return streamPlotsInPlotAreas(this.plotAreaManager.getAllPlotAreas());
     }
 
 }

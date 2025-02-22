@@ -23,6 +23,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 class FixedPlotProvider implements PlotProvider {
 
@@ -35,6 +36,11 @@ class FixedPlotProvider implements PlotProvider {
     @Override
     public Collection<Plot> getPlots() {
         return Collections.singleton(plot);
+    }
+
+    @Override
+    public Stream<Plot> streamPlots() {
+        return Stream.of(plot);
     }
 
 }

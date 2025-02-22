@@ -19,12 +19,44 @@
 package com.plotsquared.core.util.query;
 
 import com.plotsquared.core.plot.Plot;
+import com.plotsquared.core.plot.PlotArea;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-@FunctionalInterface
 interface PlotProvider {
 
     Collection<Plot> getPlots();
+
+    Stream<Plot> streamPlots();
+
+    default Stream<Plot> streamPlotsInPlotAreas(PlotArea[] areas) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<>() {
+            private int areaIndex = -1;
+            private Iterator<Plot> currentAreaPlots;
+            @Override
+            public boolean hasNext() {
+                if (currentAreaPlots == null) {
+                    return areas.length > 0;
+                }
+                if (!currentAreaPlots.hasNext()) {
+                    return ++areaIndex < areas.length - 1;
+                }
+                return true;
+            }
+
+            @Override
+            public Plot next() {
+                if (currentAreaPlots == null) {
+                    currentAreaPlots = areas[++areaIndex].getPlots().iterator();
+                }
+                return currentAreaPlots.next();
+            }
+        }, Spliterator.IMMUTABLE), false);
+    }
 
 }

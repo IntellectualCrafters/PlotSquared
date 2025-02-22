@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 class SearchPlotProvider implements PlotProvider {
 
@@ -113,6 +114,11 @@ class SearchPlotProvider implements PlotProvider {
     @Override
     public Collection<Plot> getPlots() {
         return getPlotsBySearch(this.searchTerm);
+    }
+
+    @Override
+    public Stream<Plot> streamPlots() {
+        return getPlots().stream(); // TODO: look into potentially optimizations here?
     }
 
 }
