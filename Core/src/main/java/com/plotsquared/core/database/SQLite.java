@@ -33,6 +33,7 @@ import java.sql.Statement;
 /**
  * Connects to and uses a SQLite database.
  */
+@Deprecated(forRemoval = true)
 public class SQLite extends Database {
 
     private static final Logger LOGGER = LogManager.getLogger("PlotSquared/" + SQLite.class.getSimpleName());

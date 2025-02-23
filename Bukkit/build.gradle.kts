@@ -92,6 +92,8 @@ tasks.named<ShadowJar>("shadowJar") {
     relocate("net.jcip", "com.plotsquared.core.annotations.jcip")
     relocate("edu.umd.cs.findbugs", "com.plotsquared.core.annotations.findbugs")
     relocate("com.intellectualsites.annotations", "com.plotsquared.core.annotations.informative")
+    relocate("org.jdbi.v3", "com.plotsquared.core.jdbi")
+    relocate("com.zaxxer.hikari", "com.plotsquared.core.hikari")
 
     // Get rid of all the libs which are 100% unused.
     minimize()

@@ -29,6 +29,7 @@ import java.sql.Statement;
  * @author -_Husky_-
  * @author tips48
  */
+@Deprecated(forRemoval = true)
 public abstract class Database {
 
     public abstract Connection forceConnection() throws SQLException, ClassNotFoundException;

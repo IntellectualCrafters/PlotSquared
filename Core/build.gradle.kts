@@ -37,6 +37,11 @@ dependencies {
     // Logging
     compileOnlyApi(libs.log4j)
 
+    // Database
+    api(libs.hikaricp)
+    api(libs.jdbiCore)
+    api(libs.jdbiGuice)
+
     // Other libraries
     api(libs.prtree)
     api(libs.aopalliance)

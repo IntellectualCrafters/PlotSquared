@@ -82,6 +82,8 @@ import com.plotsquared.core.inject.annotations.DefaultGenerator;
 import com.plotsquared.core.inject.annotations.ImpromptuPipeline;
 import com.plotsquared.core.inject.annotations.WorldConfig;
 import com.plotsquared.core.inject.annotations.WorldFile;
+import com.plotsquared.core.inject.modules.DatabaseModule;
+import com.plotsquared.core.inject.modules.JdbiModule;
 import com.plotsquared.core.inject.modules.PlotSquaredModule;
 import com.plotsquared.core.listener.PlotListener;
 import com.plotsquared.core.listener.WESubscriber;
@@ -141,6 +143,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.incendo.serverlib.ServerLib;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -293,7 +296,9 @@ public final class BukkitPlatform extends JavaPlugin implements Listener, PlotPl
                         new WorldManagerModule(),
                         new PlotSquaredModule(),
                         new BukkitModule(this),
-                        new BackupModule()
+                        new BackupModule(),
+                        new JdbiModule(),
+                        new DatabaseModule()
                 );
         this.injector.injectMembers(this);
 

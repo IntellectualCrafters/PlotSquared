@@ -18,6 +18,7 @@
  */
 package com.plotsquared.core;
 
+import com.google.inject.Key;
 import com.plotsquared.core.configuration.ConfigurationSection;
 import com.plotsquared.core.configuration.ConfigurationUtil;
 import com.plotsquared.core.configuration.MemorySection;
@@ -31,14 +32,12 @@ import com.plotsquared.core.configuration.caption.load.DefaultCaptionProvider;
 import com.plotsquared.core.configuration.file.YamlConfiguration;
 import com.plotsquared.core.configuration.serialization.ConfigurationSerialization;
 import com.plotsquared.core.database.DBFunc;
-import com.plotsquared.core.database.Database;
-import com.plotsquared.core.database.MySQL;
 import com.plotsquared.core.database.SQLManager;
-import com.plotsquared.core.database.SQLite;
 import com.plotsquared.core.generator.GeneratorWrapper;
 import com.plotsquared.core.generator.HybridPlotWorld;
 import com.plotsquared.core.generator.HybridUtils;
 import com.plotsquared.core.generator.IndependentPlotGenerator;
+import com.plotsquared.core.inject.annotations.PlotDatabase;
 import com.plotsquared.core.inject.factory.HybridPlotWorldFactory;
 import com.plotsquared.core.listener.PlotListener;
 import com.plotsquared.core.location.Location;
@@ -75,7 +74,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import javax.sql.DataSource;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -1236,8 +1237,11 @@ public class PlotSquared {
             DBFunc.validatePlots(plots);
 
             // Close the connection
-            DBFunc.close();
-        } catch (NullPointerException throwable) {
+            final DataSource dataSource = platform().injector().getInstance(Key.get(DataSource.class, PlotDatabase.class));
+            if (dataSource instanceof Closeable closeable) {
+                closeable.close();
+            }
+        } catch (IOException | NullPointerException throwable) {
             LOGGER.error("Could not close database connection", throwable);
             throwable.printStackTrace();
         }
@@ -1289,26 +1293,7 @@ public class PlotSquared {
             if (DBFunc.dbManager != null) {
                 DBFunc.dbManager.close();
             }
-            Database database;
-            if (Storage.MySQL.USE) {
-                database = new MySQL(Storage.MySQL.HOST, Storage.MySQL.PORT, Storage.MySQL.DATABASE,
-                        Storage.MySQL.USER, Storage.MySQL.PASSWORD
-                );
-            } else if (Storage.SQLite.USE) {
-                File file = FileUtils.getFile(platform.getDirectory(), Storage.SQLite.DB + ".db");
-                database = new SQLite(file);
-            } else {
-                LOGGER.error("No storage type is set. Disabling PlotSquared");
-                this.platform.shutdown(); //shutdown used instead of disable because no database is set
-                return;
-            }
-            DBFunc.dbManager = new SQLManager(
-                    database,
-                    Storage.PREFIX,
-                    this.eventDispatcher,
-                    this.plotListener,
-                    this.worldConfiguration
-            );
+            DBFunc.dbManager = platform().injector().getInstance(SQLManager.class);
             this.plots_tmp = DBFunc.getPlots();
             if (getPlotAreaManager() instanceof SinglePlotAreaManager) {
                 SinglePlotArea area = ((SinglePlotAreaManager) getPlotAreaManager()).getArea();
@@ -1322,13 +1307,13 @@ public class PlotSquared {
             }
             this.clustersTmp = DBFunc.getClusters();
             LOGGER.info("Connection to database established. Type: {}", Storage.MySQL.USE ? "MySQL" : "SQLite");
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (Exception e) {
             LOGGER.error(
                     "Failed to open database connection ({}). Disabling PlotSquared",
                     Storage.MySQL.USE ? "MySQL" : "SQLite"
             );
             LOGGER.error("==== Here is an ugly stacktrace, if you are interested in those things ===");
-            e.printStackTrace();
+            LOGGER.error("", e);
             LOGGER.error("==== End of stacktrace ====");
             LOGGER.error(
                     "Please go to the {} 'storage.yml' and configure the database correctly",

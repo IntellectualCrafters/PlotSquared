@@ -33,6 +33,7 @@ import java.sql.Statement;
  * @author -_Husky_-
  * @author tips48
  */
+@Deprecated(forRemoval = true)
 public class MySQL extends Database {
 
     private final String user;

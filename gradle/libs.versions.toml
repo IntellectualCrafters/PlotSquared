@@ -19,6 +19,10 @@ luckperms = "5.4"
 essentialsx = "2.20.1"
 mvdwapi = "3.1.1"
 
+# Datebase
+hikaricp = "5.0.1"
+jdbi = "3.41.3"
+
 # Third party
 prtree = "2.0.1"
 aopalliance = "1.0"
@@ -62,6 +66,11 @@ luckperms = { group = "net.luckperms", name = "api", version.ref = "luckperms" }
 essentialsx = { group = "net.essentialsx", name = "EssentialsX", version.ref = "essentialsx" }
 faweCore = { group = "com.fastasyncworldedit", name = "FastAsyncWorldEdit-Core", version.ref = "fawe" }
 faweBukkit = { group = "com.fastasyncworldedit", name = "FastAsyncWorldEdit-Bukkit", version.ref = "fawe" }
+
+# Database
+hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
+jdbiCore = { group = "org.jdbi", name = "jdbi3-core", version.ref = "jdbi" }
+jdbiGuice = { group = "org.jdbi", name = "jdbi3-guice", version.ref = "jdbi" }
 
 # Third party
 prtree = { group = "com.intellectualsites.prtree", name = "PRTree", version.ref = "prtree" }
