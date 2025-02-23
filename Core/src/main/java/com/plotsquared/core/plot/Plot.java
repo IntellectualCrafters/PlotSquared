@@ -1394,7 +1394,7 @@ public class Plot {
     @Deprecated
     public Location getHomeSynchronous() {
         BlockLoc home = this.getPosition();
-        if (home == null || home.getX() == 0 && home.getZ() == 0) {
+        if (home == null) {
             return this.getDefaultHomeSynchronous(true);
         } else {
             Location bottom = this.getBottomAbs();
@@ -1429,7 +1429,7 @@ public class Plot {
      */
     public void getHome(final Consumer<Location> result) {
         BlockLoc home = this.getPosition();
-        if (home == null || home.getX() == 0 && home.getZ() == 0) {
+        if (home == null) {
             this.getDefaultHome(result);
         } else {
             if (!isLoaded()) {
