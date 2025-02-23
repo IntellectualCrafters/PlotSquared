@@ -67,13 +67,10 @@ public class Visit extends Command {
 
     private void visit(
             final @NonNull PlotPlayer<?> player, final @NonNull PlotQuery query, final PlotArea sortByArea,
-            final RunnableVal3<Command, Runnable, Runnable> confirm, final RunnableVal2<Command, CommandResult> whenDone, int page
+            final RunnableVal3<Command, Runnable, Runnable> confirm, final RunnableVal2<Command, CommandResult> whenDone,
+            int page, final boolean isQueryingBasePlot
     ) {
-        // We get the query once,
-        // then we get it another time further on
-        final List<Plot> unsorted = query.asList();
-
-        if (unsorted.size() > 1) {
+        if (!isQueryingBasePlot && query.hasMinimumMatches(2)) {
             query.whereBasePlot();
         }
 
@@ -237,7 +234,8 @@ public class Visit extends Command {
                                     finalSortByArea,
                                     confirm,
                                     whenDone,
-                                    finalPage1
+                                    finalPage1,
+                                    true
                             );
                         }
                     });
@@ -261,12 +259,9 @@ public class Visit extends Command {
                         if (throwable instanceof TimeoutException) {
                             // The request timed out
                             player.sendMessage(TranslatableCaption.of("players.fetching_players_timeout"));
-                        } else if (uuid != null && (Settings.Teleport.VISIT_MERGED_OWNERS
-                                ? !PlotQuery.newQuery().ownersInclude(uuid).anyMatch()
-                                : !PlotQuery.newQuery().ownedBy(uuid).anyMatch())) {
-                            // It was a valid UUID but the player has no plots
-                            player.sendMessage(TranslatableCaption.of("errors.player_no_plots"));
-                        } else if (uuid == null) {
+                            return;
+                        }
+                        if (uuid == null){
                             // player not found, so we assume it's an alias if no page was provided
                             if (finalPage == Integer.MIN_VALUE) {
                                 this.visit(
@@ -275,7 +270,8 @@ public class Visit extends Command {
                                         player.getApplicablePlotArea(),
                                         confirm,
                                         whenDone,
-                                        1
+                                        1,
+                                        false
                                 );
                             } else {
                                 player.sendMessage(
@@ -283,24 +279,23 @@ public class Visit extends Command {
                                         TagResolver.resolver("value", Tag.inserting(Component.text(finalArgs[0])))
                                 );
                             }
-                        } else {
-                            this.visit(
-                                    player,
-                                    Settings.Teleport.VISIT_MERGED_OWNERS
-                                            ? PlotQuery.newQuery().ownersInclude(uuid).whereBasePlot()
-                                            : PlotQuery.newQuery().ownedBy(uuid).whereBasePlot(),
-                                    null,
-                                    confirm,
-                                    whenDone,
-                                    finalPage
-                            );
+                            return;
                         }
+                        final PlotQuery query = Settings.Teleport.VISIT_MERGED_OWNERS
+                                ? PlotQuery.newQuery().ownersInclude(uuid)
+                                : PlotQuery.newQuery().ownedBy(uuid);
+                        if (!query.anyMatch()) {
+                            // It was a valid UUID but the player has no plots
+                            player.sendMessage(TranslatableCaption.of("errors.player_no_plots"));
+                            return;
+                        }
+                        this.visit(player, query.whereBasePlot(), null, confirm, whenDone, finalPage, true);
                     });
                 } else {
                     // Try to parse a plot
                     final Plot plot = Plot.getPlotFromString(player, finalArgs[0], true);
                     if (plot != null) {
-                        this.visit(player, PlotQuery.newQuery().withPlot(plot), null, confirm, whenDone, 1);
+                        this.visit(player, PlotQuery.newQuery().withPlot(plot), null, confirm, whenDone, 1, false);
                     }
                 }
                 break;

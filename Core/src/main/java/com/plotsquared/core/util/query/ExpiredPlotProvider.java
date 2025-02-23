@@ -22,12 +22,18 @@ import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 class ExpiredPlotProvider implements PlotProvider {
 
     @Override
     public Collection<Plot> getPlots() {
         return PlotSquared.platform().expireManager().getPendingExpired();
+    }
+
+    @Override
+    public Stream<Plot> streamPlots() {
+        return getPlots().stream();
     }
 
 }
