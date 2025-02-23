@@ -580,6 +580,7 @@
   "flags.flag_description_misc_break": "<gray>Set to `true` to allow guests to break miscellaneous items.</gray>",
   "flags.flag_description_misc_cap": "<gray>Set to an integer value to limit the amount of miscellaneous entities on the plot.</gray>",
   "flags.flag_description_misc_interact": "<gray>Set to `true` to allow guests to interact with miscellaneous items.</gray>",
+  "flags.flag_description_villager_cap": "<gray>Set to an integer value to limit the amount of villagers on the plot.</gray>",
   "flags.flag_description_sculk_sensor_interact": "<gray>Set to `true` to allow guests to interact with sculk sensors.</gray>",
   "flags.flag_description_misc_place": "<gray>Set to `true` to allow guests to place miscellaneous items.</gray>",
   "flags.flag_description_mob_break": "<gray>Set to `true` to allow mobs to break blocks within the plot.</gray>",

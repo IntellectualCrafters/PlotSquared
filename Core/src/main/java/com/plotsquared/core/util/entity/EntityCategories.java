@@ -31,6 +31,7 @@ public class EntityCategories {
     public static final int CAP_MOB = 3;
     public static final int CAP_VEHICLE = 4;
     public static final int CAP_MISC = 5;
+    public static final int CAP_VILLAGER = 6;
 
     public static final EntityCategory ANIMAL = register("animal");
     public static final EntityCategory TAMEABLE = register("tameable");

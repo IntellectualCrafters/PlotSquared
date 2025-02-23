@@ -39,6 +39,7 @@ import com.plotsquared.core.plot.flag.implementations.PveFlag;
 import com.plotsquared.core.plot.flag.implementations.PvpFlag;
 import com.plotsquared.core.plot.flag.implementations.TamedAttackFlag;
 import com.plotsquared.core.plot.flag.implementations.VehicleCapFlag;
+import com.plotsquared.core.plot.flag.implementations.VillagerCapFlag;
 import com.plotsquared.core.util.EntityUtil;
 import com.plotsquared.core.util.entity.EntityCategories;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -373,13 +374,20 @@ public class BukkitEntityUtil {
             );
         }
 
-        // Has to go go before vehicle as horses are both
+        // Has to go before vehicle as horses are both
         // animals and vehicles
-        if (EntityCategories.ANIMAL.contains(entityType) || EntityCategories.VILLAGER
-                .contains(entityType) || EntityCategories.TAMEABLE.contains(entityType)) {
+        if (EntityCategories.ANIMAL.contains(entityType)
+                || EntityCategories.TAMEABLE.contains(entityType)) {
             return EntityUtil
                     .checkEntity(plot, EntityCapFlag.ENTITY_CAP_UNLIMITED, MobCapFlag.MOB_CAP_UNLIMITED,
                             AnimalCapFlag.ANIMAL_CAP_UNLIMITED
+                    );
+        }
+
+        if(EntityCategories.VILLAGER.contains(entityType)) {
+            return EntityUtil
+                    .checkEntity(plot, EntityCapFlag.ENTITY_CAP_UNLIMITED, MobCapFlag.MOB_CAP_UNLIMITED,
+                            VillagerCapFlag.VILLAGER_CAP_UNLIMITED
                     );
         }
 

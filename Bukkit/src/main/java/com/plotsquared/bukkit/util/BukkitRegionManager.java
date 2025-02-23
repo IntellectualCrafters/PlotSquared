@@ -58,6 +58,7 @@ import java.util.Set;
 import static com.plotsquared.core.util.entity.EntityCategories.CAP_ANIMAL;
 import static com.plotsquared.core.util.entity.EntityCategories.CAP_ENTITY;
 import static com.plotsquared.core.util.entity.EntityCategories.CAP_MISC;
+import static com.plotsquared.core.util.entity.EntityCategories.CAP_VILLAGER;
 import static com.plotsquared.core.util.entity.EntityCategories.CAP_MOB;
 import static com.plotsquared.core.util.entity.EntityCategories.CAP_MONSTER;
 import static com.plotsquared.core.util.entity.EntityCategories.CAP_VEHICLE;
@@ -122,7 +123,7 @@ public class BukkitRegionManager extends RegionManager {
             }
         }
 
-        int[] count = new int[6];
+        int[] count = new int[7];
         if (doWhole) {
             for (Entity entity : entities) {
                 org.bukkit.Location location = entity.getLocation();
@@ -330,7 +331,10 @@ public class BukkitRegionManager extends RegionManager {
         } else if (EntityCategories.PROJECTILE.contains(entityType) || EntityCategories.OTHER.contains(entityType) || EntityCategories.HANGING
                 .contains(entityType)) {
             count[CAP_MISC]++;
-        } else if (EntityCategories.ANIMAL.contains(entityType) || EntityCategories.VILLAGER.contains(entityType) || EntityCategories.TAMEABLE
+        } else if (EntityCategories.VILLAGER.contains(entityType)) {
+            count[CAP_MOB]++;
+            count[CAP_VILLAGER]++;
+        } else if (EntityCategories.ANIMAL.contains(entityType) || EntityCategories.TAMEABLE
                 .contains(entityType)) {
             count[CAP_MOB]++;
             count[CAP_ANIMAL]++;

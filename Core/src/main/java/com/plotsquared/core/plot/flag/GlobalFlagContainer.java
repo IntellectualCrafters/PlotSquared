@@ -113,6 +113,7 @@ import com.plotsquared.core.plot.flag.implementations.VehicleBreakFlag;
 import com.plotsquared.core.plot.flag.implementations.VehicleCapFlag;
 import com.plotsquared.core.plot.flag.implementations.VehiclePlaceFlag;
 import com.plotsquared.core.plot.flag.implementations.VehicleUseFlag;
+import com.plotsquared.core.plot.flag.implementations.VillagerCapFlag;
 import com.plotsquared.core.plot.flag.implementations.VillagerInteractFlag;
 import com.plotsquared.core.plot.flag.implementations.VineGrowFlag;
 import com.plotsquared.core.plot.flag.implementations.WeatherFlag;
@@ -231,6 +232,7 @@ public final class GlobalFlagContainer extends FlagContainer {
         this.addFlag(EntityCapFlag.ENTITY_CAP_UNLIMITED);
         this.addFlag(HostileCapFlag.HOSTILE_CAP_UNLIMITED);
         this.addFlag(MiscCapFlag.MISC_CAP_UNLIMITED);
+        this.addFlag(VillagerCapFlag.VILLAGER_CAP_UNLIMITED);
         this.addFlag(MobCapFlag.MOB_CAP_UNLIMITED);
         this.addFlag(TimeFlag.TIME_DISABLED);
         this.addFlag(VehicleCapFlag.VEHICLE_CAP_UNLIMITED);
