@@ -1233,6 +1233,32 @@ public class Plot {
     }
 
     /**
+     * Sets the plot into merging process
+     */
+    public void setMerging() {
+        for (Plot plot : this.getConnectedPlots()) {
+            plot.setMeta("merging", true);
+        }
+    }
+
+    /**
+     * @return the current state of merging process
+     */
+    public Boolean isMerging() {
+        Boolean value = (Boolean) this.getMeta("merging");
+        return value != null && value;
+    }
+
+    /**
+     * Removes the merging process
+     */
+    public void removeMerging() {
+        for (Plot plot : this.getConnectedPlots()) {
+            plot.deleteMeta("merging");
+        }
+    }
+
+    /**
      * Decrement the number of tracked tasks this plot is running<br>
      * - Used to track/limit the number of things a player can do on the plot at once
      *

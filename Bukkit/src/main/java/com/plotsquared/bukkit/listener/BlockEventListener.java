@@ -228,7 +228,7 @@ public class BlockEventListener implements Listener {
             return;
         }
         Plot plot = area.getPlot(location);
-        if (plot != null) {
+        if (plot != null && !plot.isMerging()) {
             BukkitPlayer plotPlayer = BukkitUtil.adapt(player);
             // == rather than <= as we only care about the "ground level" not being destroyed
             if (event.getBlock().getY() == area.getMinGenHeight()) {
