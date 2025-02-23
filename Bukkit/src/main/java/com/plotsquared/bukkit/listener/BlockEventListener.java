@@ -68,6 +68,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Dispenser;
 import org.bukkit.block.data.type.Farmland;
@@ -784,7 +785,7 @@ public class BlockEventListener implements Listener {
                 Location bloc = BukkitUtil.adapt(block1.getLocation());
                 if (bloc.isPlotArea() || bloc
                         .add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())
-                        .isPlotArea()) {
+                        .isPlotArea() && block1.getPistonMoveReaction() != PistonMoveReaction.BREAK) {
                     event.setCancelled(true);
                     return;
                 }
@@ -804,11 +805,11 @@ public class BlockEventListener implements Listener {
         for (Block block1 : event.getBlocks()) {
             Location bloc = BukkitUtil.adapt(block1.getLocation());
             Location newLoc = bloc.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ());
-            if (!area.contains(bloc.getX(), bloc.getZ()) || !area.contains(newLoc)) {
+            if (!area.contains(bloc.getX(), bloc.getZ()) || !area.contains(newLoc) && block1.getPistonMoveReaction() != PistonMoveReaction.BREAK) {
                 event.setCancelled(true);
                 return;
             }
-            if (!plot.equals(area.getOwnedPlot(bloc)) || !plot.equals(area.getOwnedPlot(newLoc))) {
+            if (!plot.equals(area.getOwnedPlot(bloc)) || !plot.equals(area.getOwnedPlot(newLoc)) && block1.getPistonMoveReaction() != PistonMoveReaction.BREAK) {
                 event.setCancelled(true);
                 return;
             }
