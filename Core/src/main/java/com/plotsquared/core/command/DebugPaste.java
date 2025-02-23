@@ -41,7 +41,9 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 @CommandDeclaration(command = "debugpaste",
         aliases = "dp",
@@ -168,6 +170,21 @@ public class DebugPaste extends SubCommand {
                             TranslatableCaption.of("debugpaste.skip_multiverse"),
                             TagResolver.resolver("file", Tag.inserting(Component.text("worlds.yml")))
                     );
+                }
+
+                final Path langDir = PlotSquared.platform().getDirectory().toPath().resolve("lang");
+                if (Files.isDirectory(langDir)) {
+                    try (Stream<Path> files = Files.list(langDir)) {
+                        files.filter(Files::isRegularFile)
+                                .filter(path -> path.getFileName().toString().startsWith("messages_") &&
+                                        path.getFileName().toString().endsWith(".json")
+                                ).forEach(path -> {
+                                    try {
+                                        incendoPaster.addFile(path.toFile());
+                                    } catch (IOException ignored) {
+                                    }
+                                });
+                    }
                 }
 
                 try {
