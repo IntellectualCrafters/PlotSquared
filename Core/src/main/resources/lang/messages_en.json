@@ -556,6 +556,7 @@
   "flags.flag_description_concrete_harden": "<gray>Set to `false` to disable concrete powder forming to concrete with water.</gray>",
   "flags.flag_description_device_interact": "<gray>Set to `true` to allow devices to be interacted with in the plot.</gray>",
   "flags.flag_description_disable_physics": "<gray>Set to `true` to disable block physics in the plot.</gray>",
+  "flags.flag_description_disable_block_update": "<gray>Set to `true` to disable block update in the plot.</gray>",
   "flags.flag_description_drop_protection": "<gray>Set to `true` to prevent dropped items from being picked up by non-members of the plot.</gray>",
   "flags.flag_description_edit_sign": "<gray>Set to `true` to allow editing signs in the plot.</gray>",
   "flags.flag_description_feed": "<gray>Specify an interval in seconds and an optional amount by which the players will be fed (amount is 1 by default).</gray>",

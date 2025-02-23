@@ -39,6 +39,7 @@ import com.plotsquared.core.plot.flag.implementations.DenyPortalsFlag;
 import com.plotsquared.core.plot.flag.implementations.DenyTeleportFlag;
 import com.plotsquared.core.plot.flag.implementations.DescriptionFlag;
 import com.plotsquared.core.plot.flag.implementations.DeviceInteractFlag;
+import com.plotsquared.core.plot.flag.implementations.DisableBlockUpdateFlag;
 import com.plotsquared.core.plot.flag.implementations.DisablePhysicsFlag;
 import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.implementations.DropProtectionFlag;
@@ -158,6 +159,7 @@ public final class GlobalFlagContainer extends FlagContainer {
         this.addFlag(DenyPortalTravelFlag.DENY_PORTAL_TRAVEL_FALSE);
         this.addFlag(DeviceInteractFlag.DEVICE_INTERACT_FALSE);
         this.addFlag(DisablePhysicsFlag.DISABLE_PHYSICS_FALSE);
+        this.addFlag(DisableBlockUpdateFlag.DISABLE_BLOCK_UPDATE_FLAG_FALSE);
         this.addFlag(DropProtectionFlag.DROP_PROTECTION_FALSE);
         this.addFlag(EditSignFlag.EDIT_SIGN_FALSE);
         this.addFlag(EntityChangeBlockFlag.ENTITY_CHANGE_BLOCK_FALSE);

@@ -28,6 +28,7 @@ import com.plotsquared.core.location.Location;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
+import com.plotsquared.core.plot.flag.implementations.DisableBlockUpdateFlag;
 import com.plotsquared.core.plot.flag.implementations.DisablePhysicsFlag;
 import com.plotsquared.core.plot.flag.implementations.RedstoneFlag;
 import com.plotsquared.core.plot.world.PlotAreaManager;
@@ -47,6 +48,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -152,6 +154,7 @@ public class HighFreqBlockEventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onPhysicsEvent(BlockPhysicsEvent event) {
         Block block = event.getBlock();
+        Block sourceBlock = event.getSourceBlock();
         Location location = BukkitUtil.adapt(block.getLocation());
         PlotArea area = location.getPlotArea();
         if (area == null) {
@@ -166,6 +169,18 @@ public class HighFreqBlockEventListener implements Listener {
             sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
             plot.debug("Prevented block physics and resent block change because disable-physics = true");
             return;
+        }
+        if (plot.getFlag(DisableBlockUpdateFlag.class)) {
+            if (!event.getChangedType().hasGravity()) {
+                if (sourceBlock.getType().isAir() || block.getType().isAir()) {
+                    return;
+                }
+                if (!sourceBlock.getType().name().toLowerCase(Locale.ROOT).contains("snow")
+                        || !block.getLocation().add(0, -1, 0).getBlock().getType().equals(Material.GRASS_BLOCK)) {
+                    event.setCancelled(true);
+                    plot.debug("Prevented block update because disable-block-update = true");
+                }
+            }
         }
         if (event.getChangedType() == Material.COMPARATOR) {
             if (!plot.getFlag(RedstoneFlag.class)) {
