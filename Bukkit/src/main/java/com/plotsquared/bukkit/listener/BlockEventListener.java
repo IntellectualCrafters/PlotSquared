@@ -844,6 +844,13 @@ public class BlockEventListener implements Listener {
                     return;
                 }
             }
+            if (block.getType() == Material.MOVING_PISTON
+                    && event.getBlocks().isEmpty()
+                    && location.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ()).isPlotArea()) {
+                // Headless sticky pistons can delete the block in front of them
+                // when retracting. Prevent this.
+                event.setCancelled(true);
+            }
             return;
         }
         Plot plot = area.getOwnedPlot(location);
@@ -866,6 +873,13 @@ public class BlockEventListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+        }
+        if (block.getType() == Material.MOVING_PISTON
+                && event.getBlocks().isEmpty()
+                && !plot.equals(area.getOwnedPlot(location.add(relative.getBlockX(), relative.getBlockY(), relative.getBlockZ())))) {
+            // Headless sticky pistons can delete the block in front of them
+            // when retracting. Prevent this.
+            event.setCancelled(true);
         }
     }
 
