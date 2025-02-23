@@ -133,7 +133,7 @@ public class BukkitModule extends AbstractModule {
     @Provides
     @Singleton
     @NonNull EconHandler provideEconHandler() {
-        if (!Settings.Enabled_Components.ECONOMY || !Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+        if (!Settings.Enabled_Components.ECONOMY || Bukkit.getPluginManager().getPlugin("Vault") == null) {
             return EconHandler.nullEconHandler();
         }
         // Guice eagerly initializes singletons, so we need to bring the laziness ourselves
