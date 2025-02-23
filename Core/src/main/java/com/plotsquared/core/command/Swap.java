@@ -18,11 +18,15 @@
  */
 package com.plotsquared.core.command;
 
+import com.google.inject.Inject;
 import com.plotsquared.core.configuration.caption.TranslatableCaption;
+import com.plotsquared.core.events.PlotSwapEvent;
+import com.plotsquared.core.events.Result;
 import com.plotsquared.core.location.Location;
 import com.plotsquared.core.permissions.Permission;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
+import com.plotsquared.core.util.EventDispatcher;
 import com.plotsquared.core.util.task.RunnableVal2;
 import com.plotsquared.core.util.task.RunnableVal3;
 import net.kyori.adventure.text.Component;
@@ -38,6 +42,9 @@ import java.util.concurrent.CompletableFuture;
         requiredType = RequiredType.PLAYER)
 public class Swap extends SubCommand {
 
+    @Inject
+    private EventDispatcher eventDispatcher;
+
     @Override
     public CompletableFuture<Boolean> execute(
             PlotPlayer<?> player, String[] args,
@@ -45,41 +52,49 @@ public class Swap extends SubCommand {
             RunnableVal2<Command, CommandResult> whenDone
     ) {
         Location location = player.getLocation();
-        Plot plot1 = location.getPlotAbs();
-        if (plot1 == null) {
+        Plot plot = location.getPlotAbs();
+        if (plot == null) {
             player.sendMessage(TranslatableCaption.of("errors.not_in_plot"));
-            return CompletableFuture.completedFuture(false);
-        }
-        if (!plot1.isOwner(player.getUUID()) && !player.hasPermission(Permission.PERMISSION_ADMIN)) {
-            player.sendMessage(TranslatableCaption.of("permission.no_plot_perms"));
             return CompletableFuture.completedFuture(false);
         }
         if (args.length != 1) {
             sendUsage(player);
             return CompletableFuture.completedFuture(false);
         }
-        Plot plot2 = Plot.getPlotFromString(player, args[0], true);
-        if (plot2 == null) {
+        final Plot plotArg = Plot.getPlotFromString(player, args[0], true);
+        if (plotArg == null) {
             return CompletableFuture.completedFuture(false);
         }
-        if (plot1.equals(plot2)) {
+        final PlotSwapEvent event = this.eventDispatcher.callSwap(player, plot, plotArg);
+        if (event.getEventResult() == Result.DENY) {
+            if (event.sendErrorMessage()) {
+                player.sendMessage(TranslatableCaption.of("swap.event_cancelled"));
+            }
+            return CompletableFuture.completedFuture(false);
+        }
+        if (!plot.isOwner(player.getUUID()) && !player.hasPermission(Permission.PERMISSION_ADMIN) && event.getEventResult() != Result.FORCE) {
+            player.sendMessage(TranslatableCaption.of("permission.no_plot_perms"));
+            return CompletableFuture.completedFuture(false);
+        }
+        final Plot target = event.target();
+        if (plot.equals(target)) {
             player.sendMessage(TranslatableCaption.of("invalid.origin_cant_be_target"));
             return CompletableFuture.completedFuture(false);
         }
-        if (!plot1.getArea().isCompatible(plot2.getArea())) {
+        if (!plot.getArea().isCompatible(target.getArea())) {
             player.sendMessage(TranslatableCaption.of("errors.plotworld_incompatible"));
             return CompletableFuture.completedFuture(false);
         }
-        if (plot1.isMerged() || plot2.isMerged()) {
+        if (plot.isMerged() || target.isMerged()) {
             player.sendMessage(TranslatableCaption.of("swap.swap_merged"));
             return CompletableFuture.completedFuture(false);
         }
 
         // Set strings here as the plot objects are mutable (the PlotID changes after being moved).
-        String p1 = plot1.toString();
-        String p2 = plot2.toString();
+        String p1 = plot.toString();
+        String p2 = target.toString();
 
-        return plot1.getPlotModificationManager().move(plot2, player, () -> {
+        return plot.getPlotModificationManager().move(target, player, () -> {
         }, true).thenApply(result -> {
             if (result) {
                 player.sendMessage(
@@ -89,6 +104,7 @@ public class Swap extends SubCommand {
                                 .tag("target", Tag.inserting(Component.text(p2)))
                                 .build()
                 );
+                this.eventDispatcher.callPostSwap(player, plot, target);
                 return true;
             } else {
                 player.sendMessage(TranslatableCaption.of("swap.swap_overlap"));
