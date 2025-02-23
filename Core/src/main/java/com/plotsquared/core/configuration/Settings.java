@@ -825,6 +825,10 @@ public class Settings extends Config {
         );
         @Comment("Whether PlotSquared should hook into MvDWPlaceholderAPI or not")
         public static boolean USE_MVDWAPI = true;
+
+        @Comment("Whether PlotSquared should hook into MiniPlaceholders")
+        public static boolean USE_MINIPLACEHOLDERS = true;
+
         @Comment("Prevent cross plot beacon effects")
         public static boolean DISABLE_BEACON_EFFECT_OVERFLOW = true;
 

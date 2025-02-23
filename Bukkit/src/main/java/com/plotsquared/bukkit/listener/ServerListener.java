@@ -21,6 +21,7 @@ package com.plotsquared.bukkit.listener;
 import com.google.inject.Inject;
 import com.plotsquared.bukkit.BukkitPlatform;
 import com.plotsquared.bukkit.placeholder.MVdWPlaceholders;
+import com.plotsquared.bukkit.placeholder.MiniPlaceholders;
 import com.plotsquared.bukkit.util.BukkitEconHandler;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.configuration.Settings;
@@ -51,6 +52,11 @@ public class ServerListener implements Listener {
         if (Bukkit.getPluginManager().getPlugin("MVdWPlaceholderAPI") != null && Settings.Enabled_Components.USE_MVDWAPI) {
             new MVdWPlaceholders(this.plugin, this.plugin.placeholderRegistry());
             ConsolePlayer.getConsole().sendMessage(TranslatableCaption.of("placeholder.hooked"));
+        }
+        if (Bukkit.getPluginManager().getPlugin("MiniPlaceholders") != null
+                && Settings.Enabled_Components.USE_MINIPLACEHOLDERS) {
+            new MiniPlaceholders(this.plugin.placeholderRegistry());
+            ConsolePlayer.getConsole().sendMessage(TranslatableCaption.of("placeholder.miniplaceholders.hooked"));
         }
         if (Settings.Enabled_Components.ECONOMY && Bukkit.getPluginManager().isPluginEnabled("Vault")) {
             EconHandler econHandler = new BukkitEconHandler();

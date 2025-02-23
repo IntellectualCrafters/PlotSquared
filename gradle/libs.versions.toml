@@ -18,6 +18,7 @@ placeholderapi = "2.11.6"
 luckperms = "5.4"
 essentialsx = "2.20.1"
 mvdwapi = "3.1.1"
+miniplaceholders = "2.2.3"
 
 # Third party
 prtree = "2.0.1"
@@ -68,6 +69,7 @@ prtree = { group = "com.intellectualsites.prtree", name = "PRTree", version.ref 
 aopalliance = { group = "aopalliance", name = "aopalliance", version.ref = "aopalliance" }
 cloudServices = { group = "cloud.commandframework", name = "cloud-services", version.ref = "cloud-services" }
 mvdwapi = { group = "com.intellectualsites.mvdwplaceholderapi", name = "MVdWPlaceholderAPI", version.ref = "mvdwapi" }
+miniplaceholders = { group = "io.github.miniplaceholders", name = "miniplaceholders-api", version.ref = "miniplaceholders" }
 squirrelid = { group = "org.enginehub", name = "squirrelid", version.ref = "squirrelid" }
 arkitektonika = { group = "com.intellectualsites.arkitektonika", name = "Arkitektonika-Client", version.ref = "arkitektonika" }
 paster = { group = "com.intellectualsites.paster", name = "Paster", version.ref = "paster" }

@@ -192,6 +192,7 @@
   "core.prefix": "<dark_gray>[</dark_gray><gold>P2</gold><dark_gray>] </dark_gray>",
   "core.enabled": "<prefix><gold><value> is now enabled.</gold>",
   "placeholder.hooked": "<prefix><gold>PlotSquared hooked into MVdWPlaceholderAPI</gold>",
+  "placeholder.miniplaceholders.hooked": "<prefix><gold>PlotSquared hooked into MiniPlaceholders</gold>",
   "placeholder.nan": "Not a number",
   "reload.reloaded_configs": "<prefix><gold>Translations and world settings have been reloaded successfully.</gold>",
   "reload.reload_failed": "<prefix><red>Failed to reload file configurations.</red>",
