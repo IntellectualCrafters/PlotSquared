@@ -553,6 +553,8 @@ public final class PlotModificationManager {
         return false;
     }
 
+    private static final Direction[] DIRECTIONS = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+
     /**
      * Auto merge a plot in a specific direction.
      *
@@ -587,71 +589,25 @@ public final class PlotModificationManager {
             }
             visited.add(current);
             Set<Plot> plots;
-            if ((dir == Direction.ALL || dir == Direction.NORTH) && !current.isMerged(Direction.NORTH)) {
-                Plot other = current.getRelative(Direction.NORTH);
-                if (other != null && other.isOwner(uuid) && (other.getBasePlot(false).equals(current.getBasePlot(false))
-                        || (plots = other.getConnectedPlots()).size() <= max && frontier.addAll(plots) && (max -= plots.size()) != -1)) {
-                    current.mergePlot(other, removeRoads, queue);
-                    merged.add(current.getId());
-                    merged.add(other.getId());
-                    toReturn = true;
-
-                    if (removeRoads) {
-                        ArrayList<PlotId> ids = new ArrayList<>();
-                        ids.add(current.getId());
-                        ids.add(other.getId());
-                        this.plot.getManager().finishPlotMerge(ids, queue);
-                    }
+            for (final Direction direction : DIRECTIONS) {
+                if (max <= 0) {
+                    break;
                 }
-            }
-            if (max >= 0 && (dir == Direction.ALL || dir == Direction.EAST) && !current.isMerged(Direction.EAST)) {
-                Plot other = current.getRelative(Direction.EAST);
-                if (other != null && other.isOwner(uuid) && (other.getBasePlot(false).equals(current.getBasePlot(false))
-                        || (plots = other.getConnectedPlots()).size() <= max && frontier.addAll(plots) && (max -= plots.size()) != -1)) {
-                    current.mergePlot(other, removeRoads, queue);
-                    merged.add(current.getId());
-                    merged.add(other.getId());
-                    toReturn = true;
+                if ((dir == Direction.ALL || dir == direction) && !current.isMerged(direction)) {
+                    Plot other = current.getRelative(direction);
+                    if (other != null && other.isOwner(uuid) && (other.getBasePlot(false).equals(current.getBasePlot(false))
+                            || (plots = other.getConnectedPlots()).size() <= max && frontier.addAll(plots) && (max -= plots.size()) != -1)) {
+                        current.mergePlot(other, removeRoads, queue);
+                        merged.add(current.getId());
+                        merged.add(other.getId());
+                        toReturn = true;
 
-                    if (removeRoads) {
-                        ArrayList<PlotId> ids = new ArrayList<>();
-                        ids.add(current.getId());
-                        ids.add(other.getId());
-                        this.plot.getManager().finishPlotMerge(ids, queue);
-                    }
-                }
-            }
-            if (max >= 0 && (dir == Direction.ALL || dir == Direction.SOUTH) && !current.isMerged(Direction.SOUTH)) {
-                Plot other = current.getRelative(Direction.SOUTH);
-                if (other != null && other.isOwner(uuid) && (other.getBasePlot(false).equals(current.getBasePlot(false))
-                        || (plots = other.getConnectedPlots()).size() <= max && frontier.addAll(plots) && (max -= plots.size()) != -1)) {
-                    current.mergePlot(other, removeRoads, queue);
-                    merged.add(current.getId());
-                    merged.add(other.getId());
-                    toReturn = true;
-
-                    if (removeRoads) {
-                        ArrayList<PlotId> ids = new ArrayList<>();
-                        ids.add(current.getId());
-                        ids.add(other.getId());
-                        this.plot.getManager().finishPlotMerge(ids, queue);
-                    }
-                }
-            }
-            if (max >= 0 && (dir == Direction.ALL || dir == Direction.WEST) && !current.isMerged(Direction.WEST)) {
-                Plot other = current.getRelative(Direction.WEST);
-                if (other != null && other.isOwner(uuid) && (other.getBasePlot(false).equals(current.getBasePlot(false))
-                        || (plots = other.getConnectedPlots()).size() <= max && frontier.addAll(plots) && (max -= plots.size()) != -1)) {
-                    current.mergePlot(other, removeRoads, queue);
-                    merged.add(current.getId());
-                    merged.add(other.getId());
-                    toReturn = true;
-
-                    if (removeRoads) {
-                        ArrayList<PlotId> ids = new ArrayList<>();
-                        ids.add(current.getId());
-                        ids.add(other.getId());
-                        this.plot.getManager().finishPlotMerge(ids, queue);
+                        if (removeRoads) {
+                            ArrayList<PlotId> ids = new ArrayList<>();
+                            ids.add(current.getId());
+                            ids.add(other.getId());
+                            this.plot.getManager().finishPlotMerge(ids, queue);
+                        }
                     }
                 }
             }
