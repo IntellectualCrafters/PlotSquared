@@ -44,7 +44,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * PlotSquared command class.
@@ -147,8 +152,7 @@ public class MainCommand extends Command {
                 try {
                     injector.getInstance(command);
                 } catch (final Exception e) {
-                    LOGGER.error("Failed to register command {}", command.getCanonicalName());
-                    e.printStackTrace();
+                    LOGGER.error("Failed to register command {}", command.getCanonicalName(), e);
                 }
             }
 
@@ -236,110 +240,170 @@ public class MainCommand extends Command {
             RunnableVal3<Command, Runnable, Runnable> confirm,
             RunnableVal2<Command, CommandResult> whenDone
     ) {
-        // Optional command scope //
-        Location location = null;
-        Plot plot = null;
-        boolean tp = false;
-        if (args.length >= 2) {
-            PlotArea area = player.getApplicablePlotArea();
-            Plot newPlot = Plot.fromString(area, args[0]);
-            if (newPlot != null && (player instanceof ConsolePlayer || newPlot.getArea()
-                    .equals(area) || player.hasPermission(Permission.PERMISSION_ADMIN)
-                    || player.hasPermission(Permission.PERMISSION_ADMIN_AREA_SUDO))
-                    && !newPlot.isDenied(player.getUUID())) {
-                final Location newLoc;
-                if (newPlot.getArea() instanceof SinglePlotArea) {
-                    newLoc = newPlot.isLoaded() ? newPlot.getCenterSynchronous() : Location.at("", 0, 0, 0);
-                } else {
-                    newLoc = newPlot.getCenterSynchronous();
-                }
-                if (player.canTeleport(newLoc)) {
-                    // Save meta
-                    try (final MetaDataAccess<Location> locationMetaDataAccess
-                                 = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LOCATION)) {
-                        location = locationMetaDataAccess.get().orElse(null);
-                        locationMetaDataAccess.set(newLoc);
+        prepareArguments(new CommandExecutionData(player, args, confirm, whenDone, null))
+                .thenCompose(executionData -> {
+                    if (executionData.isEmpty()) {
+                        return CompletableFuture.completedFuture(false);
                     }
-                    try (final MetaDataAccess<Plot> plotMetaDataAccess
-                                 = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
-                        plot = plotMetaDataAccess.get().orElse(null);
-                        plotMetaDataAccess.set(newPlot);
-                    }
-                    tp = true;
-                } else {
-                    player.sendMessage(TranslatableCaption.of("border.denied"));
-                    return CompletableFuture.completedFuture(false);
-                }
-                // Trim command
-                args = Arrays.copyOfRange(args, 1, args.length);
-            }
-            if (args.length >= 2 && !args[0].isEmpty() && args[0].charAt(0) == '-') {
-                if ("f".equals(args[0].substring(1))) {
-                    confirm = new RunnableVal3<>() {
-                        @Override
-                        public void run(Command cmd, Runnable success, Runnable failure) {
-                            if (area != null && PlotSquared.platform().econHandler().isEnabled(area)) {
-                                PlotExpression priceEval =
-                                        area.getPrices().get(cmd.getFullId());
-                                double price = priceEval != null ? priceEval.evaluate(0d) : 0d;
-                                if (price != 0d
-                                        && PlotSquared.platform().econHandler().getMoney(player) < price) {
-                                    if (failure != null) {
-                                        failure.run();
-                                    }
-                                    return;
-                                }
-                            }
-                            if (success != null) {
-                                success.run();
-                            }
+                    var data = executionData.get();
+                    try {
+                        return super.execute(data.player(), data.args(), data.confirm(), data.whenDone());
+                    } catch (CommandException e) {
+                        throw e;
+                    } catch (Throwable e) {
+                        LOGGER.error("A error occurred while executing plot command", e);
+                        String message = e.getMessage();
+                        if (message != null) {
+                            data.player().sendMessage(
+                                    TranslatableCaption.of("errors.error"),
+                                    TagResolver.resolver("value", Tag.inserting(Component.text(message)))
+                            );
+                        } else {
+                            data.player().sendMessage(
+                                    TranslatableCaption.of("errors.error_console"));
                         }
-                    };
-                    args = Arrays.copyOfRange(args, 1, args.length);
-                } else {
-                    player.sendMessage(TranslatableCaption.of("errors.invalid_command_flag"));
-                    return CompletableFuture.completedFuture(false);
-                }
-            }
-        }
-        try {
-            super.execute(player, args, confirm, whenDone);
-        } catch (CommandException e) {
-            throw e;
-        } catch (Throwable e) {
-            e.printStackTrace();
-            String message = e.getMessage();
-            if (message != null) {
-                player.sendMessage(
-                        TranslatableCaption.of("errors.error"),
-                        TagResolver.resolver("value", Tag.inserting(Component.text(message)))
-                );
-            } else {
-                player.sendMessage(
-                        TranslatableCaption.of("errors.error_console"));
-            }
-        }
-        // Reset command scope //
-        if (tp && !(player instanceof ConsolePlayer)) {
-            try (final MetaDataAccess<Location> locationMetaDataAccess
-                         = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LOCATION)) {
-                if (location == null) {
-                    locationMetaDataAccess.remove();
-                } else {
-                    locationMetaDataAccess.set(location);
-                }
-            }
-            try (final MetaDataAccess<Plot> plotMetaDataAccess
-                         = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
-                if (plot == null) {
-                    plotMetaDataAccess.remove();
-                } else {
-                    plotMetaDataAccess.set(plot);
-                }
-            }
-        }
+                    } finally {
+                        if (data.postCommandData() != null) {
+                            resetCommandScope(data.player(), data.postCommandData());
+                        }
+                    }
+                    return CompletableFuture.completedFuture(true);
+                });
         return CompletableFuture.completedFuture(true);
     }
+
+    private CompletableFuture<Optional<CommandExecutionData>> prepareArguments(CommandExecutionData data) {
+        if (data.args().length >= 2) {
+            PlotArea area = data.player().getApplicablePlotArea();
+            Plot newPlot = Plot.fromString(area, data.args()[0]);
+            return preparePlotArgument(newPlot, data, area)
+                    .thenApply(d -> d.flatMap(x -> prepareFlagArgument(x, area)));
+        } else {
+            return CompletableFuture.completedFuture(Optional.of(data));
+        }
+    }
+
+    private CompletableFuture<Optional<CommandExecutionData>> preparePlotArgument(@Nullable Plot newPlot,
+                                                                        @Nonnull CommandExecutionData data,
+                                                                                  @Nullable PlotArea area) {
+        if (newPlot != null && (data.player() instanceof ConsolePlayer
+                || (area != null && area.equals(newPlot.getArea()))
+                || data.player().hasPermission(Permission.PERMISSION_ADMIN)
+                || data.player().hasPermission(Permission.PERMISSION_ADMIN_AREA_SUDO))
+                && !newPlot.isDenied(data.player().getUUID())) {
+            return fetchPlotCenterLocation(newPlot)
+                    .thenApply(newLoc -> {
+                        if (!data.player().canTeleport(newLoc)) {
+                            data.player().sendMessage(TranslatableCaption.of("border.denied"));
+                            return Optional.empty();
+                        }
+                        // Save meta
+                        var originalCommandMeta = setCommandScope(data.player(), new TemporaryCommandMeta(newLoc, newPlot));
+                        return Optional.of(new CommandExecutionData(
+                                data.player(),
+                                Arrays.copyOfRange(data.args(), 1, data.args().length), // Trimmed command
+                                data.confirm(),
+                                data.whenDone(),
+                                originalCommandMeta
+                        ));
+                    });
+        }
+        return CompletableFuture.completedFuture(Optional.of(data));
+    }
+
+    private Optional<CommandExecutionData> prepareFlagArgument(@Nonnull CommandExecutionData data, @Nonnull PlotArea area) {
+        if (data.args().length >= 2 && !data.args()[0].isEmpty() && data.args()[0].charAt(0) == '-') {
+            if ("f".equals(data.args()[0].substring(1))) {
+                return Optional.of(new CommandExecutionData(
+                        data.player(),
+                        Arrays.copyOfRange(data.args(), 1, data.args().length), // Trimmed command
+                        createForcedConfirmation(data.player(), area),
+                        data.whenDone(),
+                        data.postCommandData()
+                ));
+            } else {
+                data.player().sendMessage(TranslatableCaption.of("errors.invalid_command_flag"));
+                return Optional.empty();
+            }
+        }
+        return Optional.of(data);
+    }
+
+    private CompletableFuture<Location> fetchPlotCenterLocation(Plot plot) {
+        if (plot.getArea() instanceof SinglePlotArea && !plot.isLoaded()) {
+            return CompletableFuture.completedFuture(Location.at("", 0, 0, 0));
+        }
+        CompletableFuture<Location> future = new CompletableFuture<>();
+        plot.getCenter(future::complete);
+        return future;
+    }
+
+    private @Nonnull RunnableVal3<Command, Runnable, Runnable> createForcedConfirmation(@Nonnull PlotPlayer<?> player,
+                                                                                        @Nullable PlotArea area) {
+        return new RunnableVal3<>() {
+            @Override
+            public void run(Command cmd, Runnable success, Runnable failure) {
+                if (area != null && PlotSquared.platform().econHandler().isEnabled(area)
+                        && Optional.of(area.getPrices().get(cmd.getFullId()))
+                        .map(priceEval -> priceEval.evaluate(0d))
+                        .filter(price -> price != 0d)
+                        .filter(price -> PlotSquared.platform().econHandler().getMoney(player) < price)
+                        .isPresent()) {
+                    if (failure != null) {
+                        failure.run();
+                    }
+                    return;
+                }
+                if (success != null) {
+                    success.run();
+                }
+            }
+        };
+    }
+
+    private @Nonnull TemporaryCommandMeta setCommandScope(@Nonnull PlotPlayer<?> player, @Nonnull TemporaryCommandMeta commandMeta) {
+        Objects.requireNonNull(commandMeta.location());
+        Objects.requireNonNull(commandMeta.plot());
+        Location location;
+        Plot plot;
+        try (final MetaDataAccess<Location> locationMetaDataAccess
+                     = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LOCATION)) {
+            location = locationMetaDataAccess.get().orElse(null);
+            locationMetaDataAccess.set(commandMeta.location());
+        }
+        try (final MetaDataAccess<Plot> plotMetaDataAccess
+                     = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
+            plot = plotMetaDataAccess.get().orElse(null);
+            plotMetaDataAccess.set(commandMeta.plot());
+        }
+        return new TemporaryCommandMeta(location, plot);
+    }
+
+    private void resetCommandScope(@Nonnull PlotPlayer<?> player, @Nonnull TemporaryCommandMeta commandMeta) {
+        try (final MetaDataAccess<Location> locationMetaDataAccess
+                     = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LOCATION)) {
+            if (commandMeta.location() == null) {
+                locationMetaDataAccess.remove();
+            } else {
+                locationMetaDataAccess.set(commandMeta.location());
+            }
+        }
+        try (final MetaDataAccess<Plot> plotMetaDataAccess
+                     = player.accessTemporaryMetaData(PlayerMetaDataKeys.TEMPORARY_LAST_PLOT)) {
+            if (commandMeta.plot() == null) {
+                plotMetaDataAccess.remove();
+            } else {
+                plotMetaDataAccess.set(commandMeta.plot());
+            }
+        }
+    }
+
+    private record CommandExecutionData(@Nonnull PlotPlayer<?> player, @Nonnull String[] args,
+                    @Nonnull RunnableVal3<Command, Runnable, Runnable> confirm,
+                    @Nonnull RunnableVal2<Command, CommandResult> whenDone,
+                    @Nullable TemporaryCommandMeta postCommandData) {}
+
+    private record TemporaryCommandMeta(@Nullable Location location, @Nullable Plot plot) {}
 
     @Override
     public boolean canExecute(PlotPlayer<?> player, boolean message) {
